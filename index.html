@@ -174,7 +174,22 @@ details p,td p{line-height:1.5;overflow-wrap:anywhere}
 .funnel-row{grid-template-columns:minmax(0,1.3fr) minmax(94px,1fr) 16px 16px}
 @media(max-width:820px){.funnel-row{grid-template-columns:minmax(0,1.3fr) minmax(94px,1fr) 18px}}
 nav a[aria-disabled="true"]{cursor:not-allowed}
-</style></head>
+</style>
+<style id="ceo-observation-style">
+.observed-value{color:var(--blue)}
+.observation-chart{height:94px;font-size:12px;color:var(--text)}
+.observation-chart small{font-size:11px;color:var(--muted)}
+.observation-chart svg{display:block;width:100%;height:65px}
+.observation-chart svg text{fill:#aab4c4;font:14px system-ui}
+.observation-table-scroll{max-height:280px;overflow:auto}
+.grid-2>.card{min-width:0}
+.observation-table table{min-width:380px}
+.chart-wrap{overflow:auto}
+.observation-status{color:var(--muted);line-height:1.5}
+@media(max-width:560px){.observation-chart svg text{font-size:24px}}
+</style>
+<script src="observations.js" defer></script>
+</head>
 <body>
 <div class="app">
 <aside>
