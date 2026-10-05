@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stackroll CEO Dashboard</title>
+<style>
+    :root {
+      --bg: #0a0d12;
+      --panel: #111722;
+      --panel-2: #151d29;
+      --line: #253044;
+      --text: #f5f7fb;
+      --muted: #8f9bad;
+      --green: #2bd576;
+      --red: #ff5b6e;
+      --amber: #ffbd4a;
+      --blue: #6b8cff;
+      --purple: #a97aff;
+      --radius: 18px;
+      --shadow: 0 16px 40px rgba(0,0,0,.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, rgba(107,140,255,.10), transparent 26%),
+                  radial-gradient(circle at top right, rgba(43,213,118,.08), transparent 22%),
+                  var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .app { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+    aside {
+      border-right: 1px solid var(--line);
+      background: rgba(10,13,18,.88);
+      backdrop-filter: blur(20px);
+      padding: 26px 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .brand { display:flex; align-items:center; gap:12px; margin-bottom:32px; }
+    .brand-mark {
+      width: 40px; height: 40px; border-radius: 14px;
+      background: linear-gradient(135deg, var(--green), var(--blue));
+      display:grid; place-items:center; font-weight:900; color:#08110d;
+      box-shadow: 0 8px 30px rgba(43,213,118,.25);
+    }
+    .brand h1 { font-size:18px; margin:0; }
+    .brand small { color:var(--muted); display:block; margin-top:2px; }
+    nav a {
+      display:flex; align-items:center; gap:12px;
+      padding:12px 14px; border-radius:12px; color:var(--muted);
+      text-decoration:none; margin-bottom:6px; font-size:14px;
+    }
+    nav a.active { background:var(--panel-2); color:var(--text); border:1px solid var(--line); }
+    nav a:hover { color:var(--text); }
+    .side-note {
+      position:absolute; left:18px; right:18px; bottom:24px;
+      background:linear-gradient(160deg, rgba(107,140,255,.18), rgba(169,122,255,.08));
+      border:1px solid var(--line); border-radius:16px; padding:16px;
+    }
+    .side-note strong { display:block; margin-bottom:6px; }
+    .side-note p { color:var(--muted); font-size:12px; line-height:1.5; margin:0; }
+
+    main { padding: 28px; min-width:0; }
+    .topbar { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:22px; }
+    .title h2 { margin:0; font-size:28px; }
+    .title p { color:var(--muted); margin:8px 0 0; }
+    .status-pill {
+      border:1px solid rgba(43,213,118,.35); background:rgba(43,213,118,.08);
+      color:var(--green); padding:9px 13px; border-radius:999px; font-size:13px;
+    }
+    .filters {
+      display:grid;
+      grid-template-columns: repeat(6, minmax(140px, 1fr));
+      gap:12px; margin-bottom:18px;
+      background:rgba(17,23,34,.72); border:1px solid var(--line);
+      border-radius:var(--radius); padding:14px; box-shadow:var(--shadow);
+    }
+    .filter label { display:block; color:var(--muted); font-size:11px; margin:0 0 6px 2px; text-transform:uppercase; letter-spacing:.06em; }
+    select {
+      width:100%; background:#0d131c; border:1px solid var(--line); color:var(--text);
+      border-radius:11px; padding:10px 11px; outline:none;
+    }
+    .kpis {
+      display:grid; grid-template-columns: repeat(4, minmax(0,1fr));
+      gap:14px; margin-bottom:16px;
+    }
+    .card {
+      background:linear-gradient(180deg, rgba(21,29,41,.94), rgba(17,23,34,.96));
+      border:1px solid var(--line); border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .kpi { padding:18px; min-height:122px; }
+    .kpi .label { color:var(--muted); font-size:13px; }
+    .kpi .value { font-size:29px; font-weight:800; margin-top:10px; letter-spacing:-.03em; }
+    .delta { margin-top:9px; font-size:12px; }
+    .up { color:var(--green); } .down { color:var(--red); } .flat { color:var(--amber); }
+
+    .grid-2 { display:grid; grid-template-columns:1.5fr 1fr; gap:16px; margin-bottom:16px; }
+    .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-bottom:16px; }
+    .section { padding:18px; }
+    .section-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .section-head h3 { margin:0; font-size:16px; }
+    .section-head span { color:var(--muted); font-size:12px; }
+
+    .funnel { display:flex; flex-direction:column; gap:10px; }
+    .funnel-row { display:grid; grid-template-columns:150px 1fr 70px 70px; gap:12px; align-items:center; }
+    .funnel-name { font-size:13px; color:#dce3ee; }
+    .bar-wrap { height:28px; background:#0b1018; border:1px solid var(--line); border-radius:9px; overflow:hidden; }
+    .bar { height:100%; border-radius:8px; background:linear-gradient(90deg, var(--blue), var(--purple)); display:flex; align-items:center; padding-left:10px; font-size:11px; font-weight:700; min-width:48px; }
+    .conv { font-size:12px; color:var(--green); text-align:right; }
+    .drop { font-size:12px; color:var(--muted); text-align:right; }
+
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:11px 8px; border-bottom:1px solid rgba(37,48,68,.75); text-align:left; font-size:12px; }
+    th { color:var(--muted); font-weight:600; }
+    td strong { font-size:13px; }
+    .tag { display:inline-block; border:1px solid var(--line); background:#0e141e; border-radius:999px; padding:4px 8px; color:#cbd4e1; }
+    .health {
+      display:grid; grid-template-columns:repeat(5,1fr); gap:10px;
+    }
+    .health-item { border:1px solid var(--line); border-radius:14px; padding:14px; background:#0e141e; }
+    .health-item .dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:7px; }
+    .health-item strong { display:block; font-size:13px; margin-bottom:6px; }
+    .health-item small { color:var(--muted); line-height:1.4; }
+    .green { background:var(--green); } .amber { background:var(--amber); } .red { background:var(--red); }
+
+    .alert-list { display:flex; flex-direction:column; gap:10px; }
+    .alert { display:flex; gap:10px; align-items:flex-start; padding:12px; border-radius:12px; background:#0e141e; border:1px solid var(--line); }
+    .alert-icon { width:10px; height:10px; margin-top:4px; border-radius:50%; flex:0 0 auto; }
+    .alert strong { font-size:13px; }
+    .alert p { color:var(--muted); font-size:12px; margin:3px 0 0; line-height:1.45; }
+
+    .chart-wrap { height:290px; }
+    .mini-chart { height:210px; }
+    footer { color:var(--muted); font-size:12px; text-align:center; padding:12px 0 4px; }
+
+    @media (max-width: 1180px) {
+      .filters { grid-template-columns: repeat(3, minmax(140px,1fr)); }
+      .kpis { grid-template-columns:repeat(2,1fr); }
+      .grid-3 { grid-template-columns:1fr; }
+      .health { grid-template-columns:repeat(2,1fr); }
+    }
+    @media (max-width: 820px) {
+      .app { grid-template-columns:1fr; }
+      aside { display:none; }
+      main { padding:16px; }
+      .topbar { flex-direction:column; }
+      .filters { grid-template-columns:repeat(2,1fr); }
+      .grid-2 { grid-template-columns:1fr; }
+      .funnel-row { grid-template-columns:110px 1fr 55px; }
+      .drop { display:none; }
+    }
+    @media (max-width: 560px) {
+      .filters,.kpis { grid-template-columns:1fr; }
+      .health { grid-template-columns:1fr; }
+    }
+  </style>
+<style id="ceo-availability-style">
+.unavailable-value{color:var(--amber);font-size:23px!important}
+.status-pill{color:var(--amber);border-color:rgba(255,189,74,.35);background:rgba(255,189,74,.08)}
+select:disabled{opacity:1;color:var(--muted);cursor:not-allowed}
+.filter-reason{display:block;margin-top:6px;color:var(--muted);font-size:11px;line-height:1.5}
+.delta{line-height:1.5}
+details{margin-top:9px;font-size:12px;line-height:1.5;color:var(--muted)}
+summary{cursor:pointer;color:var(--amber)}
+details p,td p{line-height:1.5;overflow-wrap:anywhere}
+.empty-state{height:100%;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:16px;color:var(--muted);font-size:13px;line-height:1.5;overflow:auto}
+.empty-state>strong,.health-item b{color:var(--amber)}
+.funnel-unavailable{display:block;padding:5px 10px;color:var(--amber);font-size:12px}
+.funnel-row{grid-template-columns:minmax(0,1.3fr) minmax(94px,1fr) 16px 16px}
+@media(max-width:820px){.funnel-row{grid-template-columns:minmax(0,1.3fr) minmax(94px,1fr) 18px}}
+nav a[aria-disabled="true"]{cursor:not-allowed}
+</style></head>
+<body>
+<div class="app">
+<aside>
+<div class="brand">
+<div class="brand-mark">S</div>
+<div><h1>Stackroll</h1><small>CEO Control Center</small></div>
+</div>
+<nav>
+<a class="active" href="index.html">◉ CEO Overview</a>
+<a aria-disabled="true" title="Unavailable: this release covers the CEO dashboard only.">↗ Marketing</a>
+<a aria-disabled="true" title="Unavailable: this release covers the CEO dashboard only.">⌁ Funnel</a>
+<a aria-disabled="true" title="Unavailable: this release covers the CEO dashboard only.">◌ CRM &amp; Retention</a>
+<a aria-disabled="true" title="Unavailable: this release covers the CEO dashboard only.">◎ Affiliates</a>
+<a aria-disabled="true" title="Unavailable: this release covers the CEO dashboard only.">⚠ Risk &amp; Cashflow</a>
+</nav>
+<div class="side-note"><strong>CEO dashboard only</strong><p>Unavailable means a required rule or input is unresolved. Each visual explains what is needed. No live data is connected.</p></div>
+</aside>
+<main>
+<div class="topbar">
+<div class="title">
+<h2>CEO Dashboard</h2>
+<p>Is Stackroll healthy, growing and retaining profitable players?</p>
+</div>
+<div class="status-pill">● KPI inputs / rules pending</div>
+</div>
+<section class="filters">
+<div class="filter"><label>Date</label><select aria-describedby="dateFilterReason" aria-label="Date" disabled="" id="dateFilter"><option>Unavailable</option></select><small class="filter-reason" id="dateFilterReason">Reporting boundary and correction policy are unresolved. Sheet items 22.</small></div>
+<div class="filter"><label>Compare</label><select aria-describedby="compareFilterReason" aria-label="Compare" disabled="" id="compareFilter"><option>Unavailable</option></select><small class="filter-reason" id="compareFilterReason">Period alignment and percentage/point changes need approval. Sheet items 22.</small></div>
+<div class="filter"><label>Country</label><select aria-describedby="countryFilterReason" aria-label="Country" disabled="" id="countryFilter"><option>Unavailable</option></select><small class="filter-reason" id="countryFilterReason">Login location is not an approved reporting-country definition. Sheet items 13.</small></div>
+<div class="filter"><label>Source</label><select aria-describedby="sourceFilterReason" aria-label="Source" disabled="" id="sourceFilter"><option>Unavailable</option></select><small class="filter-reason" id="sourceFilterReason">Trusted attribution and unmatched-player rules are missing. Sheet items 14.</small></div>
+<div class="filter"><label>Game</label><select aria-describedby="gameFilterReason" aria-label="Game" disabled="" id="gameFilter"><option>Unavailable</option></select><small class="filter-reason" id="gameFilterReason">Historical/current labels and non-game metric behavior need approval. Sheet items 17, 18, 20.</small></div>
+<div class="filter"><label>Currency</label><select aria-describedby="currencyFilterReason" aria-label="Currency" disabled="" id="currencyFilter"><option>Unavailable</option></select><small class="filter-reason" id="currencyFilterReason">Reporting unit, historical FX and Currency = All need approval. Sheet items 16.</small></div>
+</section>
+<section class="card section" style="margin-bottom:16px;">
+<div class="section-head"><h3>Metric Definitions</h3><span>How key percentages are calculated</span></div>
+<div style="color:var(--muted);font-size:13px;line-height:1.7;"><strong style="color:var(--text);">First-Time Depositor (FTD) Conversion</strong> = First-Time Depositors ÷ New Registrations within the selected date range and filters.<br/>Second Deposit Rate = qualifying second-deposit players ÷ qualifying FTD players.<br/>Marketing ROI = attributed NGR ÷ campaign spend. Inputs and eligibility remain unresolved; unavailable values are not zero.</div>
+</section>
+<section class="kpis">
+<div class="card kpi"><div class="label">Active Players</div><div class="value unavailable-value" data-kpi="active">Unavailable</div><div class="delta flat">Promotional and voided wager rules are unresolved.</div><details><summary>Why unavailable</summary><p>Confirm whether promotional free spins and later-voided wagers qualify as real-money activity; validate wager-type coverage before counting distinct players.</p><p>Needed from: Management, Provider / Backend. CEO sheet items: 3, 4, 22.</p></details></div>
+<div class="card kpi"><div class="label">New Registrations</div><div class="value unavailable-value" data-kpi="registrations">Unavailable</div><div class="delta flat">The registration event and eligible accounts need approval.</div><details><summary>Why unavailable</summary><p>Choose account creation or completed signup, define demo/test exclusions and brand scope, and provide a completion timestamp if completion is selected.</p><p>Needed from: Management, Backend. CEO sheet items: 2, 3, 22.</p></details></div>
+<div class="card kpi"><div class="label">First-Time Depositors (FTD)</div><div class="value unavailable-value" data-kpi="ftd">Unavailable</div><div class="delta flat">Deposit qualification and complete first-deposit history are unresolved.</div><details><summary>Why unavailable</summary><p>Approve the minimum, brand/lifetime scope and late-credit treatment; verify one logical deposit, wallet credit, reversals and complete qualifying history.</p><p>Needed from: Management / Finance, Backend, Payments. CEO sheet items: 1, 5, 6, 22.</p></details></div>
+<div class="card kpi"><div class="label">First-Time Depositor (FTD) Conversion</div><div class="value unavailable-value" data-kpi="ftdRate">Unavailable</div><div class="delta flat" id="ftdFormula">Qualified FTD and registration inputs are unavailable.</div><details><summary>Why unavailable</summary><p>FTD conversion remains FTD divided by registrations in the selected period. Both inputs need approved eligibility and reporting dates; a missing denominator is not zero conversion.</p><p>Needed from: Management / Finance, Backend, Payments. CEO sheet items: 2, 3, 5, 6, 22.</p></details></div>
+<div class="card kpi"><div class="label">Deposits</div><div class="value unavailable-value" data-kpi="deposits">Unavailable</div><div class="delta flat">Receipt versus wallet-credit amount and reporting rules are unresolved.</div><details><summary>Why unavailable</summary><p>Approve provider receipts or wallet credit, fees and uncredited receipts; verify credit/reversal evidence, reporting time, currency conversion and Finance reconciliation.</p><p>Needed from: Finance, Payments, Backend. CEO sheet items: 1, 5, 7, 16, 22.</p></details></div>
+<div class="card kpi"><div class="label">Withdrawals</div><div class="value unavailable-value" data-kpi="withdrawals">Unavailable</div><div class="delta flat">Confirmed payout amounts, fees and completion timing need evidence.</div><details><summary>Why unavailable</summary><p>Provide actual paid amounts, fees, partial/refund/replacement links and reliable completion time; approve the reporting amount and currency policy and reconcile totals.</p><p>Needed from: Payments, Backend, Finance. CEO sheet items: 1, 8, 16, 22.</p></details></div>
+<div class="card kpi"><div class="label">Gross Gaming Revenue (GGR)</div><div class="value unavailable-value" data-kpi="ggr">Unavailable</div><div class="delta flat">Finance has not approved the final GGR calculation.</div><details><summary>Why unavailable</summary><p>Approve round/bet grain, placement/settlement date, voids and corrections; confirm whether payouts include returned stake, approve FX and reconcile financial totals.</p><p>Needed from: Finance, Provider. CEO sheet items: 1, 9, 16, 22.</p></details></div>
+<div class="card kpi"><div class="label">Net Gaming Revenue (NGR)</div><div class="value unavailable-value" data-kpi="ngr">Unavailable</div><div class="delta flat">GGR and the deduction/recognition policy are unresolved.</div><details><summary>Why unavailable</summary><p>Approve every cost deducted from GGR and whether it counts at earning, claim or payment. Validate links so the same reward is counted once, then reconcile amounts and FX.</p><p>Needed from: Finance, Backend. CEO sheet items: 1, 9, 10, 16, 22.</p></details></div>
+<div class="card kpi"><div class="label">Second Deposit Rate</div><div class="value unavailable-value" data-kpi="secondRate">Unavailable</div><div class="delta flat">Qualifying deposits and the second-deposit window need approval.</div><details><summary>Why unavailable</summary><p>The denominator remains qualifying FTD players. Approve which second deposits count, the observation window, brand/lifetime scope, credit/reversal treatment and complete history.</p><p>Needed from: Management / Finance, Backend, Payments. CEO sheet items: 1, 5, 6, 22.</p></details></div>
+<div class="card kpi"><div class="label">Day-7 Player Retention</div><div class="value unavailable-value" data-kpi="retention">Unavailable</div><div class="delta flat">The cohort, return event and D7 window are undefined.</div><details><summary>Why unavailable</summary><p>Approve cohort entry, qualifying return activity, exact D1/D7/D30 windows and immature-cohort treatment; verify complete history across the chosen windows.</p><p>Needed from: Management, Data / Analytics. CEO sheet items: 1, 4, 11, 22.</p></details></div>
+<div class="card kpi"><div class="label">Average 30-Day Lifetime Value (LTV)</div><div class="value unavailable-value" data-kpi="ltv">Unavailable</div><div class="delta flat">The 30-day population, start event and NGR are unresolved.</div><details><summary>Why unavailable</summary><p>Choose signup or first credited deposit as the start, eligible players and full-window maturity. Qualified NGR and complete first-30-day history are required; lifetime totals are not a substitute.</p><p>Needed from: Management / Finance. CEO sheet items: 1, 5, 9, 10, 12, 16, 22.</p></details></div>
+<div class="card kpi"><div class="label">Marketing Return on Investment (ROI)</div><div class="value unavailable-value" data-kpi="roi">Unavailable</div><div class="delta flat">No verified attribution or campaign-spend feed is available.</div><details><summary>Why unavailable</summary><p>Marketing ROI remains attributed NGR divided by campaign spend. Deliver trusted assignments and spend, approve allocation and missing/zero-spend treatment, and complete the NGR definition.</p><p>Needed from: Marketing / Finance, Management. CEO sheet items: 10, 14, 15, 16.</p></details></div>
+</section>
+<section class="card section" style="margin-bottom:16px;">
+<div class="section-head"><h3>Today’s Focus</h3><span>Automatic health summary</span></div>
+<div class="health">
+<div class="health-item"><strong><span class="dot amber"></span>Revenue</strong><small><b>Unavailable</b><br/>Deposit, GGR and comparison rules need approval. Management must also approve summary thresholds and owners (sheet item 21).</small></div>
+<div class="health-item"><strong><span class="dot amber"></span>Net Revenue</strong><small><b>Unavailable</b><br/>NGR deductions and recognition stages need approval. Management must also approve summary thresholds and owners (sheet item 21).</small></div>
+<div class="health-item"><strong><span class="dot amber"></span>Retention</strong><small><b>Unavailable</b><br/>Cohort, return and second-deposit windows need approval. Management must also approve summary thresholds and owners (sheet item 21).</small></div>
+<div class="health-item"><strong><span class="dot amber"></span>Acquisition</strong><small><b>Unavailable</b><br/>Trusted source assignments and qualified outcomes are missing. Management must also approve summary thresholds and owners (sheet item 21).</small></div>
+<div class="health-item"><strong><span class="dot amber"></span>Game Performance</strong><small><b>Unavailable</b><br/>Ranking, repeat-play and game-retention rules need approval. Management must also approve summary thresholds and owners (sheet item 21).</small></div>
+</div>
+</section>
+<section class="grid-2">
+<div class="card section">
+<div class="section-head"><h3>Revenue Trend</h3><span>Deposits, Gross Gaming Revenue (GGR) and Net Gaming Revenue (NGR)</span></div>
+<div class="chart-wrap"><div class="empty-state"><strong>Unavailable</strong><p>Approve deposit amounts, GGR, NGR, FX and chart/reporting dates before plotting revenue.</p><details><summary>Why unavailable</summary><p>Approve deposit amounts, GGR, NGR, FX and chart/reporting dates before plotting revenue.</p><p>Needed from: Finance, Payments, Management. CEO sheet items: 7, 9, 10, 16, 22.</p></details></div></div>
+</div>
+<div class="card section">
+<div class="section-head"><h3>Player Funnel</h3><span>Conversion from traffic to retention</span></div>
+<div class="funnel" id="funnel"><div class="funnel-row"><div class="funnel-name">Tracking Link Opened</div><div class="bar-wrap"><span class="funnel-unavailable">Unavailable</span></div><div aria-label="Conversion unavailable" class="conv">—</div><div aria-label="Drop-off unavailable" class="drop">—</div></div><small class="filter-reason">Visitor/link-open events and anonymous-to-player linkage are missing. Sheet items 19.</small><div class="funnel-row"><div class="funnel-name">Registration Completed</div><div class="bar-wrap"><span class="funnel-unavailable">Unavailable</span></div><div aria-label="Conversion unavailable" class="conv">—</div><div aria-label="Drop-off unavailable" class="drop">—</div></div><small class="filter-reason">The registration event, exclusions and completion time need approval. Sheet items 2, 3.</small><div class="funnel-row"><div class="funnel-name">First Deposit</div><div class="bar-wrap"><span class="funnel-unavailable">Unavailable</span></div><div aria-label="Conversion unavailable" class="conv">—</div><div aria-label="Drop-off unavailable" class="drop">—</div></div><small class="filter-reason">Qualifying FTD, credit evidence and complete history are unresolved. Sheet items 1, 5, 6.</small><div class="funnel-row"><div class="funnel-name">First Wager</div><div class="bar-wrap"><span class="funnel-unavailable">Unavailable</span></div><div aria-label="Conversion unavailable" class="conv">—</div><div aria-label="Drop-off unavailable" class="drop">—</div></div><small class="filter-reason">Qualifying wager and first-game rules need approval. Sheet items 4, 20.</small><div class="funnel-row"><div class="funnel-name">Second Deposit</div><div class="bar-wrap"><span class="funnel-unavailable">Unavailable</span></div><div aria-label="Conversion unavailable" class="conv">—</div><div aria-label="Drop-off unavailable" class="drop">—</div></div><small class="filter-reason">Qualifying credit and the second-deposit window need approval. Sheet items 5, 6.</small><div class="funnel-row"><div class="funnel-name">Day-7 Active</div><div class="bar-wrap"><span class="funnel-unavailable">Unavailable</span></div><div aria-label="Conversion unavailable" class="conv">—</div><div aria-label="Drop-off unavailable" class="drop">—</div></div><small class="filter-reason">Cohort entry, return activity and the D7 window need approval. Sheet items 11.</small><details><summary>Why unavailable</summary><p>Funnel windows and repeat/bot/test treatment also require approval. Stage counts, conversion, drop-off and timing remain unavailable.</p><p>Needed from: Frontend / Marketing, Management. CEO sheet items: 19, 20, 22.</p></details></div>
+</div>
+</section>
+<section class="grid-3">
+<div class="card section">
+<div class="section-head"><h3>Top Acquisition Sources</h3><span>Ranked by Net Gaming Revenue (NGR)</span></div>
+<table>
+<thead><tr><th>Source</th><th>First-Time Depositors (FTD)</th><th>Net Gaming Revenue (NGR)</th><th>Lifetime Value (LTV)</th></tr></thead>
+<tbody id="sourceTable"><tr><td colspan="4"><strong>Unavailable</strong><p>Trusted source assignments, qualified FTD, NGR and 30-day LTV are unavailable.</p><details><summary>Why unavailable</summary><p>Trusted source assignments, qualified FTD, NGR and 30-day LTV are unavailable.</p><p>Needed from: Marketing, Management / Finance. CEO sheet items: 6, 9, 10, 12, 14.</p></details></td></tr></tbody>
+</table>
+</div>
+<div class="card section">
+<div class="section-head"><h3>Top Games</h3><span>Performance</span></div>
+<table>
+<thead><tr><th>Game</th><th>Players</th><th>Gross Gaming Revenue (GGR)</th><th>Retention</th></tr></thead>
+<tbody id="gameTable"><tr><td colspan="4"><strong>Unavailable</strong><p>Game-label policy, ranking/ties, distinct-player and retention rules, and Finance-approved GGR are unresolved.</p><details><summary>Why unavailable</summary><p>Game-label policy, ranking/ties, distinct-player and retention rules, and Finance-approved GGR are unresolved.</p><p>Needed from: Product, Management, Finance. CEO sheet items: 4, 9, 11, 17, 20.</p></details></td></tr></tbody>
+</table>
+</div>
+<div class="card section">
+<div class="section-head"><h3>Action Center</h3><span>What needs attention</span></div>
+<div class="alert-list">
+<div class="alert"><span class="alert-icon amber"></span><div><strong>Revenue alerts · Unavailable</strong><p>Qualified revenue and cost metrics are unresolved. Management must approve the trigger, comparison, priority and action owner (sheet item 21).</p></div></div>
+<div class="alert"><span class="alert-icon amber"></span><div><strong>Acquisition alerts · Unavailable</strong><p>Trusted attribution, FTD and LTV inputs are unavailable. Management must approve the trigger, comparison, priority and action owner (sheet item 21).</p></div></div>
+<div class="alert"><span class="alert-icon amber"></span><div><strong>Game alerts · Unavailable</strong><p>Game ranking, retention and first-game rules are unresolved. Management must approve the trigger, comparison, priority and action owner (sheet item 21).</p></div></div>
+</div>
+</div>
+</section>
+<section class="grid-2">
+<div class="card section">
+<div class="section-head"><h3>Retention Trend</h3><span>Day 1, Day 7 and Day 30</span></div>
+<div class="mini-chart"><div class="empty-state"><strong>Unavailable</strong><p>Define cohort entry, return activity, D1/D7/D30 windows and maturity; validate the required history before plotting retention.</p><details><summary>Why unavailable</summary><p>Define cohort entry, return activity, D1/D7/D30 windows and maturity; validate the required history before plotting retention.</p><p>Needed from: Management, Data / Analytics. CEO sheet items: 1, 11, 22.</p></details></div></div>
+</div>
+<div class="card section">
+<div class="section-head"><h3>Marketing Mix</h3><span>Net Gaming Revenue (NGR) contribution</span></div>
+<div class="mini-chart"><div class="empty-state"><strong>Unavailable</strong><p>Trusted acquisition assignments and approved NGR are required to calculate each source's contribution.</p><details><summary>Why unavailable</summary><p>Trusted acquisition assignments and approved NGR are required to calculate each source's contribution.</p><p>Needed from: Marketing, Finance. CEO sheet items: 9, 10, 14, 16.</p></details></div></div>
+</div>
+</section>
+<footer>Stackroll CEO Dashboard · Requirements reviewed 5 Oct 2026 · Source evidence 2 Oct 2026 · No live data connection</footer>
+</main>
+</div>
+</body>
+</html>
